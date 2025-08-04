@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme {
+  --font-comic: "Comic Sans MS", "Comic Neue", cursive;
+  --color-hot-pink: #ff3ea5;
+  --color-electric-blue: #2ddcff;
+  --color-lime: #b8ff3d;
+  --color-sunshine-yellow: #ffe866;
+  --color-lilac: #caa0ff;
+  --color-deep-navy: #0e1330;
+}
+
+.font-comic { font-family: var(--font-comic); }
+
+.bg-fun {
+  background: linear-gradient(135deg, var(--color-hot-pink), var(--color-lilac), var(--color-electric-blue));
+  background-size: 200% 200%;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .bg-fun.animated { animation: gradientShift 18s ease-in-out infinite; }
+}
+
+html, body, #root { height: 100%; }
+body { margin: 0; }
