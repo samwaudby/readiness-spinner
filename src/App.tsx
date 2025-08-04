@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Header } from './components/Header';
 import { Wheel } from './components/Wheel';
+import type { WheelHandle } from './components/Wheel';
 import { AssignmentCard } from './components/AssignmentCard';
 import { AdminDrawer } from './components/AdminDrawer';
 import type { Assignment, Person, Settings } from './types';
@@ -22,6 +23,7 @@ function App() {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [assignment, setAssignment] = useState<Assignment | null>(null);
+  const [overrideAll, setOverrideAll] = useState(false);
 
   const reducedMotion = !!settings.reducedMotion;
   const soundRef = useRef(new SoundKit(!muted, reducedMotion));
@@ -31,6 +33,7 @@ function App() {
   useEffect(() => { saveSettings({ ...settings, soundsEnabled: !muted }); }, [settings, muted]);
 
   const eligible = useMemo(() => eligiblePersons(persons, settings), [persons, settings]);
+  const personOptions = eligible.length > 0 || overrideAll ? (overrideAll ? persons : eligible).map(p => p.name) : [];
 
   const spinPersonEnd = (name: string) => {
     const p = persons.find(pp => pp.name === name) ?? null;
@@ -46,8 +49,10 @@ function App() {
       confetti({ particleCount: 140, spread: 60, origin: { y: 0.6 } });
     } catch {}
   };
+  const personWheelRef = useRef<WheelHandle | null>(null);
   const notHere = () => {
     setSelectedPerson(null);
+    personWheelRef.current?.spin();
   };
 
   useEffect(() => {
@@ -70,7 +75,13 @@ function App() {
       <main className="p-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
         <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <Wheel title="Person" options={eligible.map(p => p.name)} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
+            <Wheel ref={personWheelRef} title="Person" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
+            {eligible.length === 0 && !overrideAll && (
+              <div className="mt-3 text-center">
+                <div>No eligible people (all OOO or in cooldown).</div>
+                <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={() => setOverrideAll(true)}>Override: include all</button>
+              </div>
+            )}
             {selectedPerson && (
               <div className="mt-2 flex gap-2 justify-center">
                 <button className="px-3 py-2 rounded-lg bg-[--color-lime] text-[--color-deep-navy] font-bold" onClick={confirmPresent}>Present</button>

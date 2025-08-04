@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { SoundKit } from '../sounds';
+
+export type WheelHandle = { spin: () => void };
 
 type WheelProps = {
   title: string;
@@ -15,7 +17,7 @@ type WheelProps = {
 
 const wedgeColors = ['bg-[--color-hot-pink]','bg-[--color-lilac]','bg-[--color-electric-blue]','bg-[--color-sunshine-yellow]','bg-[--color-lime]'];
 
-export function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins }: WheelProps) {
+export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins }: WheelProps, ref) {
   const filtered = useMemo(() => (enabledMap ? options.filter(o => enabledMap[o] !== false) : options), [options, enabledMap]);
   const [spinning, setSpinning] = useState(false);
   const [angle, setAngle] = useState(0);
@@ -62,6 +64,7 @@ export function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMot
   };
 
   useEffect(() => () => { if (tickTimer.current) tickTimer.current = null; }, []);
+  useImperativeHandle(ref, () => ({ spin }));
 
   const radius = 120;
   const center = radius;
@@ -110,4 +113,4 @@ export function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMot
       </div>
     </div>
   );
-}
+});
