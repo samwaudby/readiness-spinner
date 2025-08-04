@@ -24,6 +24,7 @@ function App() {
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [overrideAll, setOverrideAll] = useState(false);
+  const [secondary, setSecondary] = useState<'capability' | 'platform'>('capability');
 
   const reducedMotion = !!settings.reducedMotion;
   const soundRef = useRef(new SoundKit(!muted, reducedMotion));
@@ -56,14 +57,18 @@ function App() {
   };
 
   useEffect(() => {
-    if (selectedPerson && selectedCapability && selectedPlatform) {
+    if (!selectedPerson) return;
+    const hasSecondary = secondary === 'capability' ? !!selectedCapability : !!selectedPlatform;
+    if (hasSecondary) {
       const next = nextSyncDate();
-      const a: Assignment = { personId: selectedPerson.id, capability: selectedCapability, platform: selectedPlatform, nextSyncISO: next.toISOString() };
+      const cap = selectedCapability ?? 'Choose-Your-Own';
+      const plat = selectedPlatform ?? 'Choose-Your-Own';
+      const a: Assignment = { personId: selectedPerson.id, capability: cap, platform: plat, nextSyncISO: next.toISOString() };
       setAssignment(a);
       pushAssignment(a);
       setPersons(ps => ps.map(p => p.id === selectedPerson.id ? { ...p, lastDemoISO: ISO() } : p));
     }
-  }, [selectedPerson, selectedCapability, selectedPlatform]);
+  }, [selectedPerson, selectedCapability, selectedPlatform, secondary]);
 
   const resetFlow = () => {
     setSelectedPerson(null); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null);
@@ -71,37 +76,46 @@ function App() {
 
   return (
     <div className="bg-fun animated min-h-screen text-[--color-deep-navy]">
-      <Header muted={muted} onToggleMute={() => setMuted(m => !m)} onOpenAdmin={() => setAdminOpen(true)} />
-      <main className="p-4 grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <div className="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <Wheel ref={personWheelRef} title="Person" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
-            {eligible.length === 0 && !overrideAll && (
-              <div className="mt-3 text-center">
-                <div>No eligible people (all OOO or in cooldown).</div>
-                <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={() => setOverrideAll(true)}>Override: include all</button>
-              </div>
-            )}
-            {selectedPerson && (
-              <div className="mt-2 flex gap-2 justify-center">
-                <button className="px-3 py-2 rounded-lg bg-[--color-lime] text-[--color-deep-navy] font-bold" onClick={confirmPresent}>Present</button>
-                <button className="px-3 py-2 rounded-lg bg-red-200 border-2 border-red-500 text-red-800 font-bold" onClick={notHere}>Not here</button>
-              </div>
-            )}
-          </div>
-          <Wheel title="Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
-          <Wheel title="Platform" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
+      <Header
+        muted={muted}
+        onToggleMute={() => setMuted(m => !m)}
+        onOpenAdmin={() => setAdminOpen(true)}
+        secondary={secondary}
+        onChangeSecondary={(s) => { setSecondary(s); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}
+      />
+      <main className="p-4 max-w-3xl mx-auto flex flex-col gap-4">
+        <div>
+          <Wheel ref={personWheelRef} title="Person" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
+          {eligible.length === 0 && !overrideAll && (
+            <div className="mt-3 text-center">
+              <div>No eligible people (all OOO or in cooldown).</div>
+              <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={() => setOverrideAll(true)}>Override: include all</button>
+            </div>
+          )}
+          {selectedPerson && (
+            <div className="mt-2 flex gap-2 justify-center">
+              <button className="px-3 py-2 rounded-lg bg-[--color-lime] text-[--color-deep-navy] font-bold" onClick={confirmPresent}>Present</button>
+              <button className="px-3 py-2 rounded-lg bg-red-200 border-2 border-red-500 text-red-800 font-bold" onClick={notHere}>Not here</button>
+            </div>
+          )}
         </div>
-        <div className="lg:col-span-1 space-y-4">
+
+        {secondary === 'capability' ? (
+          <Wheel title="Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
+        ) : (
+          <Wheel title="Platform" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
+        )}
+
+        <div>
           {assignment ? (
             <>
               <AssignmentCard assignment={assignment} persons={persons} slackWebhook={settings.slackWebhook} />
-              <button className="px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={resetFlow}>New spin</button>
+              <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={resetFlow}>New spin</button>
               <div className="text-sm">Date: {formatDateShort(new Date(assignment.nextSyncISO))}</div>
             </>
           ) : (
             <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur">
-              <div className="font-comic text-xl">Complete all three wheels to generate the Assignment Card.</div>
+              <div className="font-comic text-xl">Complete both wheels to generate the Assignment Card.</div>
             </div>
           )}
         </div>

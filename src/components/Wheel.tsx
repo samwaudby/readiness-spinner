@@ -15,7 +15,7 @@ type WheelProps = {
   allowRespins?: boolean;
 };
 
-const wedgeColors = ['fill-[--color-hot-pink]','fill-[--color-lilac]','fill-[--color-electric-blue]','fill-[--color-sunshine-yellow]','fill-[--color-lime]'];
+const wedgeVars = ['var(--color-hot-pink)','var(--color-lilac)','var(--color-electric-blue)','var(--color-sunshine-yellow)','var(--color-lime)'];
 
 export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins }: WheelProps, ref) {
   const filtered = useMemo(() => (enabledMap ? options.filter(o => enabledMap[o] !== false) : options), [options, enabledMap]);
@@ -67,7 +67,8 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
   useImperativeHandle(ref, () => ({ spin }));
 
   const radius = 120;
-  const center = radius;
+  const margin = 28;
+  const center = radius + margin;
   const wedges = filtered.map((label, i) => {
     const a0 = (i / filtered.length) * 2 * Math.PI - Math.PI / 2;
     const a1 = ((i + 1) / filtered.length) * 2 * Math.PI - Math.PI / 2;
@@ -86,16 +87,16 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
         <h3 className="font-comic text-2xl text-[--color-hot-pink] font-bold">{title}</h3>
         <button className="px-4 py-2 rounded-xl bg-[--color-electric-blue] text-[--color-deep-navy] font-bold" onClick={spin} disabled={spinning}>SPIN</button>
       </div>
-      <div className="relative mx-auto mt-4 w-[260px] h-[260px]">
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-[--color-deep-navy]"></div>
-        <svg width={radius*2} height={radius*2} style={{ transform: `rotate(${angle}deg)`, transition: spinning ? undefined : 'transform 0.2s ease-out' }}>
+      <div className="relative mx-auto mt-4" style={{ width: radius*2 + margin*2, height: radius*2 + margin*2 }}>
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-[--color-deep-navy]"></div>
+        <svg width={radius*2 + margin*2} height={radius*2 + margin*2} viewBox={`0 0 ${radius*2 + margin*2} ${radius*2 + margin*2}`} style={{ transform: `rotate(${angle}deg)`, transition: spinning ? undefined : 'transform 0.2s ease-out' }}>
           {wedges.map(({ d, i }) => (
-            <path key={i} d={d} className={clsx(wedgeColors[i % wedgeColors.length])} stroke="white" strokeWidth={2} />
+            <path key={i} d={d} stroke="white" strokeWidth={2} fill={wedgeVars[i % wedgeVars.length]} />
           ))}
           {wedges.map(({ label, i }) => {
             const a = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
-            const rx = center + (radius * 0.6) * Math.cos(a);
-            const ry = center + (radius * 0.6) * Math.sin(a);
+            const rx = center + (radius + 14) * Math.cos(a);
+            const ry = center + (radius + 14) * Math.sin(a);
             return (
               <text key={i} x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[10px] font-bold">
                 {label}
