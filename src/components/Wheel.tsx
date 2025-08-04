@@ -15,7 +15,7 @@ type WheelProps = {
   allowRespins?: boolean;
 };
 
-const wedgeColors = ['bg-[--color-hot-pink]','bg-[--color-lilac]','bg-[--color-electric-blue]','bg-[--color-sunshine-yellow]','bg-[--color-lime]'];
+const wedgeColors = ['fill-[--color-hot-pink]','fill-[--color-lilac]','fill-[--color-electric-blue]','fill-[--color-sunshine-yellow]','fill-[--color-lime]'];
 
 export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins }: WheelProps, ref) {
   const filtered = useMemo(() => (enabledMap ? options.filter(o => enabledMap[o] !== false) : options), [options, enabledMap]);
