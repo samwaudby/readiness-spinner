@@ -107,19 +107,25 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
         <button className="px-4 py-2 rounded-xl bg-[--color-electric-blue] text-[--color-deep-navy] font-bold" onClick={spin} disabled={spinning}>SPIN</button>
       </div>
       <div className="relative mx-auto mt-2" style={{ width: radius*2 + margin*2, height: radius*2 + margin*2 }}>
-        {/* fixed pointer styled like a tab, pointing down */}
-        <svg className="absolute left-1/2 -translate-x-1/2" width={48} height={64} viewBox="0 0 48 64" style={{ top: 2 }}>
-          <g>
-            <path d="M24 2c10 0 18 8 18 18v6l-8 28H14L6 26v-6C6 10 14 2 24 2Z" fill="#fff" stroke="var(--color-deep-navy)" strokeWidth={4} />
-            <circle cx="24" cy="16" r="5" fill="var(--color-sunshine-yellow)" stroke="var(--color-deep-navy)" strokeWidth={3} />
-          </g>
-        </svg>
         <svg width={radius*2 + margin*2} height={radius*2 + margin*2} viewBox={`0 0 ${radius*2 + margin*2} ${radius*2 + margin*2}`}>
           <g transform={`rotate(${angle} ${center} ${center})`}>
             {wedges.map(({ d, i }) => (
               <path key={i} d={d} stroke="white" strokeWidth={2} fill={wedgeVars[i % wedgeVars.length]} />
             ))}
           </g>
+          {/* fixed pointer inside main SVG, overlapping rim and pointing down */}
+          {(() => {
+            const pTop = margin - 46; // above rim
+            const pBottom = margin + 10; // overlaps into wheel
+            const pW = 40;
+            const d = `M ${center - pW/2} ${pTop} Q ${center} ${pTop - 12} ${center + pW/2} ${pTop} L ${center + 9} ${pBottom} L ${center - 9} ${pBottom} Z`;
+            return (
+              <g>
+                <path d={d} fill="#fff" stroke="var(--color-deep-navy)" strokeWidth={4} />
+                <circle cx={center} cy={pTop + 14} r={6} fill="var(--color-sunshine-yellow)" stroke="var(--color-deep-navy)" strokeWidth={3} />
+              </g>
+            );
+          })()}
           {/* labels overlay: fixed, track wedge angle */}
           {filtered.map((label, i) => {
             const base = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
@@ -127,10 +133,12 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
             const labelOffset = 24;
             const rx = center + (radius + labelOffset) * Math.cos(world);
             const ry = center + (radius + labelOffset) * Math.sin(world);
-            const flip = (world > Math.PI/2 && world < (3*Math.PI)/2) ? 180 : 0;
+            // rotate tangentially to the circle; flip 180° on bottom half for readability
+            const tangent = (world * 180 / Math.PI) + 90;
+            const labelAngle = (tangent > 90 && tangent < 270) ? (tangent + 180) : tangent;
             return (
               <g key={i}>
-                <text x={rx} y={ry} transform={`rotate(${flip} ${rx} ${ry})`} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[18px] font-bold">
+                <text x={rx} y={ry} transform={`rotate(${labelAngle} ${rx} ${ry})`} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[18px] font-bold">
                   {label}
                 </text>
               </g>
