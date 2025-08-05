@@ -83,10 +83,9 @@ function App() {
         onOpenAdmin={() => setAdminOpen(true)}
       />
       <main className="p-4 max-w-5xl mx-auto flex flex-col gap-6">
-        {/* Step 1: Who's Up */}
+        {/* Step 1: Who's Up (label at top-left of card) */}
         <div>
-          <div className="text-center font-comic text-xl mb-2">Step 1: Who’s Up</div>
-          <Wheel ref={personWheelRef} title="Who’s up" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
+          <Wheel ref={personWheelRef} stepLabel="Step 1: Who’s up" title="Who’s up" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
           {eligible.length === 0 && !overrideAll && (
             <div className="mt-3 text-center">
               <div>No eligible people (all OOO or in cooldown).</div>
@@ -101,29 +100,31 @@ function App() {
           )}
         </div>
 
-        {/* Step 2: Picker switch */}
-        <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur text-center">
-          <div className="font-comic text-xl mb-3">Step 2: Pick your spinner</div>
-          <div className="relative inline-flex rounded-full border-2 border-[--color-deep-navy] bg-white/70">
+        {/* Step 2: Picker switch (left aligned) */}
+        <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur">
+          <div className="font-comic text-xl mb-3 text-left">Step 2: Pick your spinner</div>
+          <div className="relative inline-flex rounded-full border-2 border-[--color-deep-navy] bg-white/70 shadow-inner">
             <div
-              className={`absolute top-0 bottom-0 w-1/2 rounded-full bg-[--color-sunshine-yellow] transition-transform duration-300 ease-out ${secondary==='capability' ? 'translate-x-0' : 'translate-x-full'}`}
+              className={`absolute top-0 bottom-0 w-1/2 rounded-full bg-[--color-sunshine-yellow] shadow transition-transform duration-300 ease-out ${secondary==='capability' ? 'translate-x-0' : 'translate-x-full'}`}
               aria-hidden
             />
-            <button className="relative z-10 px-4 py-2 rounded-full font-bold" onClick={() => { setSecondary('capability'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>ChatGPT Capability</button>
-            <button className="relative z-10 px-4 py-2 rounded-full font-bold" onClick={() => { setSecondary('platform'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>API / Tailor Build</button>
+            <button className={`relative z-10 px-5 py-2 rounded-full font-bold ${secondary==='capability' ? 'text-[--color-deep-navy]' : 'opacity-70'}`} onClick={() => { setSecondary('capability'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>ChatGPT Capability</button>
+            <button className={`relative z-10 px-5 py-2 rounded-full font-bold ${secondary==='platform' ? 'text-[--color-deep-navy]' : 'opacity-70'}`} onClick={() => { setSecondary('platform'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>API / Tailor Build</button>
           </div>
         </div>
 
-        {/* Step 3: Relevant spinner */}
+        {/* Step 3: Relevant spinner with step label top-left */}
         {secondary === 'capability' ? (
-          <Wheel title="ChatGPT Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
+          <Wheel stepLabel="Step 3: ChatGPT Capability" title="ChatGPT Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
         ) : (
-          <Wheel title="API / Tailor Build" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
+          <Wheel stepLabel="Step 3: API / Tailor Build" title="API / Tailor Build" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
         )}
 
+        {/* Step 4: Plan section + Assignment card */}
         <div>
           {assignment ? (
             <>
+              <div className="font-comic text-xl mb-2">Step 4: What’s the plan?</div>
               <AssignmentCard assignment={assignment} persons={persons} mode={secondary} />
               <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={resetFlow}>New spin</button>
               <div className="text-sm">Date: {formatDateShort(new Date(assignment.nextSyncISO))}</div>
@@ -135,9 +136,7 @@ function App() {
           )}
         </div>
       </main>
-      <footer className="p-4 text-center text-[--color-deep-navy]">
-        Quick, scrappy demo next week. Show before/after or one trick. End with one “Try this” tip.
-      </footer>
+      <footer className="p-4 text-center text-[--color-deep-navy]"></footer>
       <AdminDrawer open={adminOpen} onClose={() => setAdminOpen(false)} persons={persons} setPersons={setPersons} settings={settings} setSettings={setSettings} />
     </div>
   );

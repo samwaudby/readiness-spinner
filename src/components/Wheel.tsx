@@ -13,11 +13,12 @@ type WheelProps = {
   reducedMotion: boolean;
   colorClass: string;
   allowRespins?: boolean;
+  stepLabel?: string;
 };
 
 const wedgeVars = ['var(--color-hot-pink)','var(--color-lilac)','var(--color-electric-blue)','var(--color-sunshine-yellow)','var(--color-lime)'];
 
-export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins }: WheelProps, ref) {
+export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins, stepLabel }: WheelProps, ref) {
   const filtered = useMemo(() => (enabledMap ? options.filter(o => enabledMap[o] !== false) : options), [options, enabledMap]);
   const [spinning, setSpinning] = useState(false);
   const [angle, setAngle] = useState(0);
@@ -32,9 +33,11 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
     window.addEventListener('resize', on);
     return () => window.removeEventListener('resize', on);
   }, []);
-  const radius = Math.max(150, Math.min(Math.floor(vw * 0.22), Math.floor((vh - 320) * 0.35), 240));
-  const margin = Math.max(60, Math.floor(radius * 0.35));
+  const radius = Math.max(160, Math.min(Math.floor(vw * 0.26), Math.floor((vh - 320) * 0.38), 300));
+  const margin = Math.max(80, Math.floor(radius * 0.5));
   const center = radius + margin;
+
+  const perWedge = filtered.length ? 360 / filtered.length : 0;
 
   const spin = () => {
     if (reducedMotion) {
@@ -48,7 +51,6 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
     sound.whoosh?.();
     const turns = 5 + Math.random() * 3;
     const finalIndex = Math.floor(Math.random() * filtered.length);
-    const perWedge = 360 / filtered.length;
     // rotate so that the chosen wedge lands under the top pointer (pointing down)
     const targetAngle = 360 * turns - (finalIndex + 0.5) * perWedge;
     const duration = 2600 + Math.random() * 700;
@@ -66,12 +68,15 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
         }
         requestAnimationFrame(step);
       } else {
-        const v = filtered[finalIndex];
+        const resting = ((targetAngle % 360) + 360) % 360;
+        // Determine which wedge is under the top pointer from resting angle
+        const idx = ((Math.round(((360 - resting) / perWedge) - 0.5) % filtered.length) + filtered.length) % filtered.length;
+        const v = filtered[idx];
         setSpinning(false);
         setSelected(v);
         sound.fanfare?.();
         onSpinEnd(v);
-        setAngle(((targetAngle % 360) + 360) % 360);
+        setAngle(resting);
       }
     };
     requestAnimationFrame(step);
@@ -89,17 +94,20 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
     const y1 = center + radius * Math.sin(a1);
     const largeArc = 0;
     const d = `M ${center} ${center} L ${x0} ${y0} A ${radius} ${radius} 0 ${largeArc} 1 ${x1} ${y1} Z`;
-    return { d, label, i };
+    return { d, label, i, a0, a1 };
   });
 
   return (
-    <div className={clsx('rounded-2xl p-4 shadow-xl border-4', colorClass, 'bg-white/70 backdrop-blur')}> 
+    <div className={clsx('relative rounded-2xl p-4 shadow-xl border-4', colorClass, 'bg-white/70 backdrop-blur')}> 
+      {stepLabel && (
+        <div className="absolute -top-3 left-4 text-xs font-bold bg-white/80 px-2 py-0.5 rounded-full border-2 border-[--color-deep-navy]">{stepLabel}</div>
+      )}
       <div className="flex items-center justify-between">
         <h3 className="font-comic text-2xl text-[--color-hot-pink] font-bold">{title}</h3>
         <button className="px-4 py-2 rounded-xl bg-[--color-electric-blue] text-[--color-deep-navy] font-bold" onClick={spin} disabled={spinning}>SPIN</button>
       </div>
-      <div className="relative mx-auto mt-4" style={{ width: radius*2 + margin*2, height: radius*2 + margin*2 }}>
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-[--color-deep-navy]"></div>
+      <div className="relative mx-auto mt-2" style={{ width: radius*2 + margin*2, height: radius*2 + margin*2 }}>
+        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-[--color-deep-navy]"></div>
         <svg width={radius*2 + margin*2} height={radius*2 + margin*2} viewBox={`0 0 ${radius*2 + margin*2} ${radius*2 + margin*2}`}>
           <g transform={`rotate(${angle} ${center} ${center})`}>
             {wedges.map(({ d, i }) => (
@@ -107,11 +115,13 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
             ))}
             {wedges.map(({ label, i }) => {
               const a = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
-              const rx = center + (radius + 14) * Math.cos(a);
-              const ry = center + (radius + 14) * Math.sin(a);
+              const rx = center + (radius + 16) * Math.cos(a);
+              const ry = center + (radius + 16) * Math.sin(a);
+              const deg = (a * 180) / Math.PI;
+              const tilt = Math.max(-20, Math.min(20, deg * 0.25));
               return (
-                <g key={i} transform={`rotate(${-angle} ${rx} ${ry})`}>
-                  <text x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[10px] font-bold">
+                <g key={i} transform={`rotate(${-angle} ${rx} ${ry}) rotate(${tilt} ${rx} ${ry})`}>
+                  <text x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[12px] font-bold">
                     {label}
                   </text>
                 </g>
@@ -120,7 +130,7 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
           </g>
         </svg>
       </div>
-      <div className="mt-3 text-center">
+      <div className="mt-1 text-center">
         <div className="text-sm text-[--color-deep-navy]">Selected:</div>
         <div className="font-comic text-xl">{selected ?? '—'}</div>
         {allowRespins && selected && (

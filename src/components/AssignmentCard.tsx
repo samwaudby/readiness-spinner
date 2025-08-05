@@ -17,9 +17,8 @@ export function AssignmentCard({ assignment, persons, mode }: Props) {
     const which = mode === 'capability'
       ? `• ChatGPT Capability: ${assignment.capability}`
       : `• API / Tailor Build: ${assignment.platform}`;
-    const brief = '• Brief: Quick, scrappy demo that boosts your productivity or advances Readiness goals. Share one “Try this” tip.';
     const when = `• Date: ${date}`;
-    return `${heading}\n${who}\n${which}\n${brief}\n${when}`;
+    return `${heading}\n${who}\n${which}\n${when}`;
   }, [assignment.capability, assignment.platform, date, mode, person?.name]);
 
   const [draft, setDraft] = useState(initial);

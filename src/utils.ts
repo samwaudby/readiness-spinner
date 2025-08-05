@@ -13,9 +13,7 @@ export const eligiblePersons = (persons: Person[], settings: Settings) =>
 
 export const nextSyncDate = (): Date => {
   const d = new Date();
-  const day = d.getDay();
-  const daysUntilNextWed = (3 - day + 7) % 7 || 7; // example: next Wednesday
-  d.setDate(d.getDate() + daysUntilNextWed);
+  d.setDate(d.getDate() + 7);
   return d;
 };
 
