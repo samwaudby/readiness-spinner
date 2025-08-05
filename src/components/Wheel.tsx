@@ -24,6 +24,18 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
   const [selected, setSelected] = useState<string | null>(null);
   const tickTimer = useRef<number | null>(null);
 
+  // responsive sizing based on viewport
+  const [vw, setVw] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [vh, setVh] = useState(typeof window !== 'undefined' ? window.innerHeight : 768);
+  useEffect(() => {
+    const on = () => { setVw(window.innerWidth); setVh(window.innerHeight); };
+    window.addEventListener('resize', on);
+    return () => window.removeEventListener('resize', on);
+  }, []);
+  const radius = Math.max(150, Math.min(Math.floor(vw * 0.22), Math.floor((vh - 320) * 0.35), 240));
+  const margin = Math.max(60, Math.floor(radius * 0.35));
+  const center = radius + margin;
+
   const spin = () => {
     if (reducedMotion) {
       const v = filtered[Math.floor(Math.random() * filtered.length)];
@@ -37,7 +49,8 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
     const turns = 5 + Math.random() * 3;
     const finalIndex = Math.floor(Math.random() * filtered.length);
     const perWedge = 360 / filtered.length;
-    const targetAngle = 360 * turns + (finalIndex + 0.5) * perWedge;
+    // rotate so that the chosen wedge lands under the top pointer (pointing down)
+    const targetAngle = 360 * turns - (finalIndex + 0.5) * perWedge;
     const duration = 2600 + Math.random() * 700;
     const start = performance.now();
 
@@ -58,7 +71,7 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
         setSelected(v);
         sound.fanfare?.();
         onSpinEnd(v);
-        setAngle(targetAngle % 360);
+        setAngle(((targetAngle % 360) + 360) % 360);
       }
     };
     requestAnimationFrame(step);
@@ -67,9 +80,6 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
   useEffect(() => () => { if (tickTimer.current) tickTimer.current = null; }, []);
   useImperativeHandle(ref, () => ({ spin }));
 
-  const radius = 120;
-  const margin = 28;
-  const center = radius + margin;
   const wedges = filtered.map((label, i) => {
     const a0 = (i / filtered.length) * 2 * Math.PI - Math.PI / 2;
     const a1 = ((i + 1) / filtered.length) * 2 * Math.PI - Math.PI / 2;

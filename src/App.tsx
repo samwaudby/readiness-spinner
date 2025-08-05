@@ -82,18 +82,10 @@ function App() {
         onToggleMute={() => setMuted(m => !m)}
         onOpenAdmin={() => setAdminOpen(true)}
       />
-      <main className="p-4 max-w-3xl mx-auto flex flex-col gap-4">
-        {/* Step 1: Choose spinner */}
-        <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur text-center">
-          <div className="font-comic text-xl mb-2">Step 1: Pick your spinner</div>
-          <div className="inline-flex bg-white/70 border-2 border-[--color-deep-navy] rounded-xl p-1">
-            <button className={`px-3 py-1 rounded-lg font-bold ${secondary==='capability' ? 'bg-[--color-sunshine-yellow]' : ''}`} onClick={() => { setSecondary('capability'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>ChatGPT Capability</button>
-            <button className={`px-3 py-1 rounded-lg font-bold ${secondary==='platform' ? 'bg-[--color-sunshine-yellow]' : ''}`} onClick={() => { setSecondary('platform'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>API / Tailor Build</button>
-          </div>
-        </div>
-
-        {/* Step 2: Who's up */}
+      <main className="p-4 max-w-5xl mx-auto flex flex-col gap-6">
+        {/* Step 1: Who's Up */}
         <div>
+          <div className="text-center font-comic text-xl mb-2">Step 1: Who’s Up</div>
           <Wheel ref={personWheelRef} title="Who’s up" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
           {eligible.length === 0 && !overrideAll && (
             <div className="mt-3 text-center">
@@ -107,6 +99,19 @@ function App() {
               <button className="px-3 py-2 rounded-lg bg-red-200 border-2 border-red-500 text-red-800 font-bold" onClick={notHere}>Not here</button>
             </div>
           )}
+        </div>
+
+        {/* Step 2: Picker switch */}
+        <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur text-center">
+          <div className="font-comic text-xl mb-3">Step 2: Pick your spinner</div>
+          <div className="relative inline-flex rounded-full border-2 border-[--color-deep-navy] bg-white/70">
+            <div
+              className={`absolute top-0 bottom-0 w-1/2 rounded-full bg-[--color-sunshine-yellow] transition-transform duration-300 ease-out ${secondary==='capability' ? 'translate-x-0' : 'translate-x-full'}`}
+              aria-hidden
+            />
+            <button className="relative z-10 px-4 py-2 rounded-full font-bold" onClick={() => { setSecondary('capability'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>ChatGPT Capability</button>
+            <button className="relative z-10 px-4 py-2 rounded-full font-bold" onClick={() => { setSecondary('platform'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>API / Tailor Build</button>
+          </div>
         </div>
 
         {/* Step 3: Relevant spinner */}
@@ -125,7 +130,7 @@ function App() {
             </>
           ) : (
             <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur">
-              <div className="font-comic text-xl text-center">Complete Step 2 and Step 3 to generate the Assignment Card.</div>
+              <div className="font-comic text-xl text-center">Complete Step 1 and Step 2 and Step 3 to generate the Assignment Card.</div>
             </div>
           )}
         </div>
