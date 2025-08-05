@@ -94,41 +94,48 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
     const y1 = center + radius * Math.sin(a1);
     const largeArc = 0;
     const d = `M ${center} ${center} L ${x0} ${y0} A ${radius} ${radius} 0 ${largeArc} 1 ${x1} ${y1} Z`;
-    return { d, label, i, a0, a1 };
+    return { d, label, i };
   });
 
   return (
     <div className={clsx('relative rounded-2xl p-4 shadow-xl border-4', colorClass, 'bg-white/70 backdrop-blur')}> 
       {stepLabel && (
-        <div className="absolute -top-3 left-4 text-xs font-bold bg-white/80 px-2 py-0.5 rounded-full border-2 border-[--color-deep-navy]">{stepLabel}</div>
+        <div className="absolute -top-3 left-4 text-sm font-bold bg-white/80 px-2 py-0.5 rounded-full border-2 border-[--color-deep-navy]">{stepLabel}</div>
       )}
       <div className="flex items-center justify-between">
         <h3 className="font-comic text-2xl text-[--color-hot-pink] font-bold">{title}</h3>
         <button className="px-4 py-2 rounded-xl bg-[--color-electric-blue] text-[--color-deep-navy] font-bold" onClick={spin} disabled={spinning}>SPIN</button>
       </div>
       <div className="relative mx-auto mt-2" style={{ width: radius*2 + margin*2, height: radius*2 + margin*2 }}>
-        <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[24px] border-b-[--color-deep-navy]"></div>
+        {/* fixed pointer styled like a tab, pointing down */}
+        <svg className="absolute left-1/2 -translate-x-1/2" width={48} height={64} viewBox="0 0 48 64" style={{ top: 2 }}>
+          <g>
+            <path d="M24 2c10 0 18 8 18 18v6l-8 28H14L6 26v-6C6 10 14 2 24 2Z" fill="#fff" stroke="var(--color-deep-navy)" strokeWidth={4} />
+            <circle cx="24" cy="16" r="5" fill="var(--color-sunshine-yellow)" stroke="var(--color-deep-navy)" strokeWidth={3} />
+          </g>
+        </svg>
         <svg width={radius*2 + margin*2} height={radius*2 + margin*2} viewBox={`0 0 ${radius*2 + margin*2} ${radius*2 + margin*2}`}>
           <g transform={`rotate(${angle} ${center} ${center})`}>
             {wedges.map(({ d, i }) => (
               <path key={i} d={d} stroke="white" strokeWidth={2} fill={wedgeVars[i % wedgeVars.length]} />
             ))}
-            {wedges.map(({ label, i }) => {
-              const a = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
-              const labelOffset = 22;
-              const rx = center + (radius + labelOffset) * Math.cos(a);
-              const ry = center + (radius + labelOffset) * Math.sin(a);
-              const aDeg = (a * 180) / Math.PI;
-              const tangentDeg = aDeg + 90; // horizontal at top, 180° at bottom
-              return (
-                <g key={i} transform={`rotate(${tangentDeg - angle} ${rx} ${ry})`}>
-                  <text x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[18px] font-bold">
-                    {label}
-                  </text>
-                </g>
-              );
-            })}
           </g>
+          {/* labels overlay: fixed, track wedge angle */}
+          {filtered.map((label, i) => {
+            const base = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
+            const world = base + (angle * Math.PI / 180);
+            const labelOffset = 24;
+            const rx = center + (radius + labelOffset) * Math.cos(world);
+            const ry = center + (radius + labelOffset) * Math.sin(world);
+            const flip = (world > Math.PI/2 && world < (3*Math.PI)/2) ? 180 : 0;
+            return (
+              <g key={i}>
+                <text x={rx} y={ry} transform={`rotate(${flip} ${rx} ${ry})`} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[18px] font-bold">
+                  {label}
+                </text>
+              </g>
+            );
+          })}
         </svg>
       </div>
       <div className="mt-1 text-center">
