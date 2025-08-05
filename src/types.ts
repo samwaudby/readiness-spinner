@@ -4,9 +4,20 @@ export type SpinResult = { personId?: string; capability?: string; platform?: st
 export type Assignment = { personId: string; capability: string; platform: string; nextSyncISO: string };
 
 export const DEFAULT_ROSTER: string[] = [
-  'Alison McPhail','Ben Tyson','Christina Meng','Christopher Ho','Emelie Hurlbert',
-  'Joe Salazar','Juliann Igo','Katie Pypes','Leah Conner','Lois Newman',
-  'Pavlin Hristov','Sam Waudby','Sara Caldwell','Sean Lubbers','Tom McCann'
+  'Tom McCann',
+  'Alison McPhail',
+  'Sara Caldwell',
+  'Sean Lubbers',
+  'Ben Tyson',
+  'Christina Meng',
+  'Christopher Ho',
+  'Emelie Hurlbert',
+  'Joe Salazar',
+  'Juliann Igo',
+  'Katie Pypes',
+  'Leah Conner',
+  'Lois Newman',
+  'Pavlin Hristov'
 ];
 
 export const CAPABILITIES = [

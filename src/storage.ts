@@ -16,7 +16,20 @@ const safeParse = <T>(json: string | null, fallback: T): T => {
 
 export const loadPersons = (): Person[] => {
   const fromLS = safeParse<Person[]>(localStorage.getItem(LS_KEYS.persons), []);
-  if (fromLS.length) return fromLS;
+  if (fromLS.length) {
+    const lsNames = new Set(fromLS.map(p => p.name));
+    const defaults = DEFAULT_ROSTER;
+    const allMatch = defaults.length === fromLS.length && defaults.every(n => lsNames.has(n));
+    if (allMatch) return fromLS;
+    // Sync to DEFAULT_ROSTER order and membership while preserving flags if present
+    const byName = new Map(fromLS.map(p => [p.name, p] as const));
+    const next: Person[] = defaults.map((name, i) => {
+      const ex = byName.get(name);
+      return { id: String(i+1), name, lastDemoISO: ex?.lastDemoISO, ooo: ex?.ooo };
+    });
+    localStorage.setItem(LS_KEYS.persons, JSON.stringify(next));
+    return next;
+  }
   // seed from default roster
   const seeded: Person[] = DEFAULT_ROSTER.map((name, i) => ({ id: String(i+1), name }));
   localStorage.setItem(LS_KEYS.persons, JSON.stringify(seeded));
