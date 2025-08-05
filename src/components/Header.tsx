@@ -9,6 +9,9 @@ const MICRO = [
   'Ship the tiny win.',
   'May the odds be ever in your favor.',
   "Today’s vibe: experimental.",
+  'Spin to win',
+  'The wheel deal',
+  'Buy a token, build an app',
 ];
 
 export function Header({ muted, onToggleMute, onOpenAdmin }: HeaderProps) {
@@ -25,7 +28,7 @@ export function Header({ muted, onToggleMute, onOpenAdmin }: HeaderProps) {
         <h1 className="font-comic text-4xl md:text-5xl font-extrabold text-[--color-hot-pink] drop-shadow-[2px_2px_0_var(--color-electric-blue)]">
           🎡 Readiness Wheel of Dogfooding Fortune ✨
         </h1>
-        <div className="text-[--color-deep-navy] text-sm">{phrase}</div>
+        <div className="mt-3 text-[--color-deep-navy] text-sm">{phrase}</div>
       </div>
     </header>
   );

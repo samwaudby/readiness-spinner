@@ -7,7 +7,7 @@ import { AssignmentCard } from './components/AssignmentCard';
 import { AdminDrawer } from './components/AdminDrawer';
 import type { Assignment, Person, Settings } from './types';
 import { CAPABILITIES, PLATFORMS } from './types';
-import { ISO, eligiblePersons, formatDateShort, nextSyncDate } from './utils';
+import { ISO, formatDateShort, nextSyncDate } from './utils';
 import { SoundKit } from './sounds';
 import { loadPersons, loadSettings, pushAssignment, pushSpin, savePersons, saveSettings, loadCapabilityToggles, loadPlatformToggles } from './storage';
 
@@ -23,7 +23,6 @@ function App() {
   const [selectedCapability, setSelectedCapability] = useState<string | null>(null);
   const [selectedPlatform, setSelectedPlatform] = useState<string | null>(null);
   const [assignment, setAssignment] = useState<Assignment | null>(null);
-  const [overrideAll, setOverrideAll] = useState(false);
   const [secondary, setSecondary] = useState<'capability' | 'platform'>('capability');
 
   const reducedMotion = !!settings.reducedMotion;
@@ -33,8 +32,8 @@ function App() {
   useEffect(() => { savePersons(persons); }, [persons]);
   useEffect(() => { saveSettings({ ...settings, soundsEnabled: !muted }); }, [settings, muted]);
 
-  const eligible = useMemo(() => eligiblePersons(persons, settings), [persons, settings]);
-  const personOptions = eligible.length > 0 || overrideAll ? (overrideAll ? persons : eligible).map(p => p.name) : [];
+  // Always show full roster on the spinner (14 names)
+  const personOptions = useMemo(() => persons.map(p => p.name), [persons]);
 
   const spinPersonEnd = (name: string) => {
     const p = persons.find(pp => pp.name === name) ?? null;
@@ -86,12 +85,6 @@ function App() {
         {/* Step 1 */}
         <div>
           <Wheel ref={personWheelRef} title="Step 1: Who’s up" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
-          {eligible.length === 0 && !overrideAll && (
-            <div className="mt-3 text-center">
-              <div>No eligible people (all OOO or in cooldown).</div>
-              <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={() => setOverrideAll(true)}>Override: include all</button>
-            </div>
-          )}
           {selectedPerson && (
             <div className="mt-2 flex gap-2 justify-center">
               <button className="px-3 py-2 rounded-lg bg-[--color-lime] text-[--color-deep-navy] font-bold" onClick={confirmPresent}>Present</button>
