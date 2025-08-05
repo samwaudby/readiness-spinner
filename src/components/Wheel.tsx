@@ -115,13 +115,14 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
             ))}
             {wedges.map(({ label, i }) => {
               const a = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
-              const rx = center + (radius + 16) * Math.cos(a);
-              const ry = center + (radius + 16) * Math.sin(a);
-              const deg = (a * 180) / Math.PI;
-              const tilt = Math.max(-20, Math.min(20, deg * 0.25));
+              const labelOffset = 22;
+              const rx = center + (radius + labelOffset) * Math.cos(a);
+              const ry = center + (radius + labelOffset) * Math.sin(a);
+              const aDeg = (a * 180) / Math.PI;
+              const tangentDeg = aDeg + 90; // horizontal at top, 180° at bottom
               return (
-                <g key={i} transform={`rotate(${-angle} ${rx} ${ry}) rotate(${tilt} ${rx} ${ry})`}>
-                  <text x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[12px] font-bold">
+                <g key={i} transform={`rotate(${tangentDeg - angle} ${rx} ${ry})`}>
+                  <text x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[18px] font-bold">
                     {label}
                   </text>
                 </g>
