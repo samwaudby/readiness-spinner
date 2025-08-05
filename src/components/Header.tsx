@@ -2,8 +2,6 @@ type HeaderProps = {
   muted: boolean;
   onToggleMute: () => void;
   onOpenAdmin: () => void;
-  secondary: 'capability' | 'platform';
-  onChangeSecondary: (s: 'capability' | 'platform') => void;
 };
 
 const MICRO = [
@@ -13,7 +11,7 @@ const MICRO = [
   "Today’s vibe: experimental.",
 ];
 
-export function Header({ muted, onToggleMute, onOpenAdmin, secondary, onChangeSecondary }: HeaderProps) {
+export function Header({ muted, onToggleMute, onOpenAdmin }: HeaderProps) {
   const phrase = MICRO[Math.floor(Math.random() * MICRO.length)];
   return (
     <header className="w-full flex items-center justify-between p-4">
@@ -22,10 +20,6 @@ export function Header({ muted, onToggleMute, onOpenAdmin, secondary, onChangeSe
         <div className="text-[--color-deep-navy] text-sm">{phrase}</div>
       </div>
       <div className="flex items-center gap-3">
-        <div className="bg-white/70 border-2 border-[--color-deep-navy] rounded-xl p-1 flex">
-          <button className={`px-3 py-1 rounded-lg font-bold ${secondary==='capability' ? 'bg-[--color-sunshine-yellow]' : ''}`} onClick={() => onChangeSecondary('capability')}>Capability</button>
-          <button className={`px-3 py-1 rounded-lg font-bold ${secondary==='platform' ? 'bg-[--color-sunshine-yellow]' : ''}`} onClick={() => onChangeSecondary('platform')}>Platform</button>
-        </div>
         <button onClick={onToggleMute} className="px-3 py-2 rounded-lg bg-white/70 text-[--color-deep-navy] border-2 border-[--color-lime] font-bold">
           {muted ? 'Unmute' : 'Mute'}
         </button>

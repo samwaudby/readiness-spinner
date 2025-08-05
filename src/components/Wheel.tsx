@@ -33,6 +33,7 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
     }
     if (spinning || filtered.length === 0) return;
     setSpinning(true);
+    sound.whoosh?.();
     const turns = 5 + Math.random() * 3;
     const finalIndex = Math.floor(Math.random() * filtered.length);
     const perWedge = 360 / filtered.length;
@@ -55,7 +56,7 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
         const v = filtered[finalIndex];
         setSpinning(false);
         setSelected(v);
-        sound.chime();
+        sound.fanfare?.();
         onSpinEnd(v);
         setAngle(targetAngle % 360);
       }
@@ -89,20 +90,24 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
       </div>
       <div className="relative mx-auto mt-4" style={{ width: radius*2 + margin*2, height: radius*2 + margin*2 }}>
         <div className="absolute top-1 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[20px] border-b-[--color-deep-navy]"></div>
-        <svg width={radius*2 + margin*2} height={radius*2 + margin*2} viewBox={`0 0 ${radius*2 + margin*2} ${radius*2 + margin*2}`} style={{ transform: `rotate(${angle}deg)`, transition: spinning ? undefined : 'transform 0.2s ease-out' }}>
-          {wedges.map(({ d, i }) => (
-            <path key={i} d={d} stroke="white" strokeWidth={2} fill={wedgeVars[i % wedgeVars.length]} />
-          ))}
-          {wedges.map(({ label, i }) => {
-            const a = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
-            const rx = center + (radius + 14) * Math.cos(a);
-            const ry = center + (radius + 14) * Math.sin(a);
-            return (
-              <text key={i} x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[10px] font-bold">
-                {label}
-              </text>
-            );
-          })}
+        <svg width={radius*2 + margin*2} height={radius*2 + margin*2} viewBox={`0 0 ${radius*2 + margin*2} ${radius*2 + margin*2}`}>
+          <g transform={`rotate(${angle} ${center} ${center})`}>
+            {wedges.map(({ d, i }) => (
+              <path key={i} d={d} stroke="white" strokeWidth={2} fill={wedgeVars[i % wedgeVars.length]} />
+            ))}
+            {wedges.map(({ label, i }) => {
+              const a = ((i + 0.5) / filtered.length) * 2 * Math.PI - Math.PI / 2;
+              const rx = center + (radius + 14) * Math.cos(a);
+              const ry = center + (radius + 14) * Math.sin(a);
+              return (
+                <g key={i} transform={`rotate(${-angle} ${rx} ${ry})`}>
+                  <text x={rx} y={ry} textAnchor="middle" dominantBaseline="middle" className="font-comic fill-[--color-deep-navy] text-[10px] font-bold">
+                    {label}
+                  </text>
+                </g>
+              );
+            })}
+          </g>
         </svg>
       </div>
       <div className="mt-3 text-center">

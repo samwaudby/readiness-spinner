@@ -43,4 +43,49 @@ export class SoundKit {
     o.start();
     o.stop(this.ctx!.currentTime + 0.45);
   }
+
+  // A short noise whoosh to kick off the spin
+  whoosh() {
+    if (!this.enabled || this.reduced) return;
+    this.ensureCtx();
+    const ctx = this.ctx!;
+    const duration = 0.5;
+    const buffer = ctx.createBuffer(1, ctx.sampleRate * duration, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length);
+    const src = ctx.createBufferSource();
+    src.buffer = buffer;
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.setValueAtTime(400, ctx.currentTime);
+    bp.frequency.exponentialRampToValueAtTime(2000, ctx.currentTime + duration);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.02, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    src.connect(bp).connect(g).connect(ctx.destination);
+    src.start();
+    src.stop(ctx.currentTime + duration);
+  }
+
+  // A brief celebratory chord at the end of a spin
+  fanfare() {
+    if (!this.enabled || this.reduced) return;
+    this.ensureCtx();
+    const ctx = this.ctx!;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.02, ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.6);
+    g.connect(ctx.destination);
+
+    const freqs = [523.25, 659.25, 783.99]; // C5, E5, G5
+    freqs.forEach((f, i) => {
+      const o = ctx.createOscillator();
+      o.type = i === 0 ? 'triangle' : 'sine';
+      o.frequency.setValueAtTime(f, ctx.currentTime);
+      o.frequency.exponentialRampToValueAtTime(f * 0.97, ctx.currentTime + 0.5);
+      o.connect(g);
+      o.start();
+      o.stop(ctx.currentTime + 0.6);
+    });
+  }
 }

@@ -40,9 +40,10 @@ function App() {
     const p = persons.find(pp => pp.name === name) ?? null;
     setSelectedPerson(p);
     pushSpin({ personId: p?.id, ts: ISO() });
+    try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } }); } catch {}
   };
-  const spinCapabilityEnd = (v: string) => { setSelectedCapability(v); pushSpin({ capability: v, ts: ISO() }); };
-  const spinPlatformEnd = (v: string) => { setSelectedPlatform(v); pushSpin({ platform: v, ts: ISO() }); };
+  const spinCapabilityEnd = (v: string) => { setSelectedCapability(v); pushSpin({ capability: v, ts: ISO() }); try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } }); } catch {} };
+  const spinPlatformEnd = (v: string) => { setSelectedPlatform(v); pushSpin({ platform: v, ts: ISO() }); try { confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } }); } catch {} };
 
   const confirmPresent = () => {
     if (!selectedPerson) return;
@@ -80,12 +81,20 @@ function App() {
         muted={muted}
         onToggleMute={() => setMuted(m => !m)}
         onOpenAdmin={() => setAdminOpen(true)}
-        secondary={secondary}
-        onChangeSecondary={(s) => { setSecondary(s); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}
       />
       <main className="p-4 max-w-3xl mx-auto flex flex-col gap-4">
+        {/* Step 1: Choose spinner */}
+        <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur text-center">
+          <div className="font-comic text-xl mb-2">Step 1: Pick your spinner</div>
+          <div className="inline-flex bg-white/70 border-2 border-[--color-deep-navy] rounded-xl p-1">
+            <button className={`px-3 py-1 rounded-lg font-bold ${secondary==='capability' ? 'bg-[--color-sunshine-yellow]' : ''}`} onClick={() => { setSecondary('capability'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>ChatGPT Capability</button>
+            <button className={`px-3 py-1 rounded-lg font-bold ${secondary==='platform' ? 'bg-[--color-sunshine-yellow]' : ''}`} onClick={() => { setSecondary('platform'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>API / Tailor Build</button>
+          </div>
+        </div>
+
+        {/* Step 2: Who's up */}
         <div>
-          <Wheel ref={personWheelRef} title="Person" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
+          <Wheel ref={personWheelRef} title="Who’s up" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
           {eligible.length === 0 && !overrideAll && (
             <div className="mt-3 text-center">
               <div>No eligible people (all OOO or in cooldown).</div>
@@ -100,22 +109,23 @@ function App() {
           )}
         </div>
 
+        {/* Step 3: Relevant spinner */}
         {secondary === 'capability' ? (
-          <Wheel title="Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
+          <Wheel title="ChatGPT Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
         ) : (
-          <Wheel title="Platform" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
+          <Wheel title="API / Tailor Build" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
         )}
 
         <div>
           {assignment ? (
             <>
-              <AssignmentCard assignment={assignment} persons={persons} slackWebhook={settings.slackWebhook} />
+              <AssignmentCard assignment={assignment} persons={persons} mode={secondary} />
               <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={resetFlow}>New spin</button>
               <div className="text-sm">Date: {formatDateShort(new Date(assignment.nextSyncISO))}</div>
             </>
           ) : (
             <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur">
-              <div className="font-comic text-xl">Complete both wheels to generate the Assignment Card.</div>
+              <div className="font-comic text-xl text-center">Complete Step 2 and Step 3 to generate the Assignment Card.</div>
             </div>
           )}
         </div>
