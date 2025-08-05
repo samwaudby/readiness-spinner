@@ -83,9 +83,9 @@ function App() {
         onOpenAdmin={() => setAdminOpen(true)}
       />
       <main className="p-4 max-w-5xl mx-auto flex flex-col gap-6">
-        {/* Step 1: Who's Up (label at top-left of card) */}
+        {/* Step 1 */}
         <div>
-          <Wheel ref={personWheelRef} stepLabel="Step 1: Who’s up" title="Who’s up" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
+          <Wheel ref={personWheelRef} title="Step 1: Who’s up" options={personOptions} onSpinEnd={spinPersonEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-hot-pink]" />
           {eligible.length === 0 && !overrideAll && (
             <div className="mt-3 text-center">
               <div>No eligible people (all OOO or in cooldown).</div>
@@ -100,9 +100,9 @@ function App() {
           )}
         </div>
 
-        {/* Step 2: Picker switch (left aligned) */}
+        {/* Step 2 */}
         <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur">
-          <div className="font-comic text-xl mb-3 text-left">Step 2: Pick your spinner</div>
+          <div className="font-comic text-2xl text-[--color-hot-pink] font-bold mb-3 text-left">Step 2: Pick your spinner</div>
           <div className="relative inline-flex rounded-full border-2 border-[--color-deep-navy] bg-white/70 shadow-inner">
             <div
               className={`absolute top-0 bottom-0 w-1/2 rounded-full bg-[--color-sunshine-yellow] shadow transition-transform duration-300 ease-out ${secondary==='capability' ? 'translate-x-0' : 'translate-x-full'}`}
@@ -113,19 +113,18 @@ function App() {
           </div>
         </div>
 
-        {/* Step 3: Relevant spinner with step label top-left */}
+        {/* Step 3 */}
         {secondary === 'capability' ? (
-          <Wheel stepLabel="Step 3: ChatGPT Capability" title="ChatGPT Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
+          <Wheel title="Step 3: ChatGPT Capability" options={CAPABILITIES.slice()} enabledMap={capToggles} onSpinEnd={spinCapabilityEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-electric-blue]" allowRespins />
         ) : (
-          <Wheel stepLabel="Step 3: API / Tailor Build" title="API / Tailor Build" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
+          <Wheel title="Step 3: API / Tailor Build" options={PLATFORMS.slice()} enabledMap={platToggles} onSpinEnd={spinPlatformEnd} sound={soundRef.current} reducedMotion={reducedMotion} colorClass="border-[--color-lilac]" allowRespins />
         )}
 
         {/* Step 4: Plan section + Assignment card */}
         <div>
           {assignment ? (
             <>
-              <div className="font-comic text-xl mb-2">Step 4: What’s the plan?</div>
-              <AssignmentCard assignment={assignment} persons={persons} mode={secondary} />
+              <AssignmentCard assignment={assignment} persons={persons} mode={secondary} heading="Step 4: What’s the plan?" />
               <button className="mt-2 px-3 py-2 rounded-lg bg-white/80 border-2 border-[--color-deep-navy]" onClick={resetFlow}>New spin</button>
               <div className="text-sm">Date: {formatDateShort(new Date(assignment.nextSyncISO))}</div>
             </>

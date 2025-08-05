@@ -13,12 +13,11 @@ type WheelProps = {
   reducedMotion: boolean;
   colorClass: string;
   allowRespins?: boolean;
-  stepLabel?: string;
 };
 
 const wedgeVars = ['var(--color-hot-pink)','var(--color-lilac)','var(--color-electric-blue)','var(--color-sunshine-yellow)','var(--color-lime)'];
 
-export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins, stepLabel }: WheelProps, ref) {
+export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title, options, enabledMap, onSpinEnd, sound, reducedMotion, colorClass, allowRespins }: WheelProps, ref) {
   const filtered = useMemo(() => (enabledMap ? options.filter(o => enabledMap[o] !== false) : options), [options, enabledMap]);
   const [spinning, setSpinning] = useState(false);
   const [angle, setAngle] = useState(0);
@@ -99,9 +98,6 @@ export const Wheel = forwardRef<WheelHandle, WheelProps>(function Wheel({ title,
 
   return (
     <div className={clsx('relative rounded-2xl p-4 shadow-xl border-4', colorClass, 'bg-white/70 backdrop-blur')}> 
-      {stepLabel && (
-        <div className="absolute -top-3 left-4 text-sm font-bold bg-white/80 px-2 py-0.5 rounded-full border-2 border-[--color-deep-navy]">{stepLabel}</div>
-      )}
       <div className="flex items-center justify-between">
         <h3 className="font-comic text-2xl text-[--color-hot-pink] font-bold">{title}</h3>
         <button className="px-4 py-2 rounded-xl bg-[--color-electric-blue] text-[--color-deep-navy] font-bold" onClick={spin} disabled={spinning}>SPIN</button>

@@ -6,9 +6,10 @@ type Props = {
   assignment: Assignment;
   persons: Person[];
   mode: 'capability' | 'platform';
+  heading?: string;
 };
 
-export function AssignmentCard({ assignment, persons, mode }: Props) {
+export function AssignmentCard({ assignment, persons, mode, heading }: Props) {
   const person = persons.find(p => p.id === assignment.personId);
   const date = formatDateShort(new Date(assignment.nextSyncISO));
   const initial = useMemo(() => {
@@ -25,7 +26,7 @@ export function AssignmentCard({ assignment, persons, mode }: Props) {
 
   return (
     <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-lime] bg-white/80 backdrop-blur">
-      <h3 className="font-comic text-2xl text-[--color-hot-pink] font-bold">Assignment Card</h3>
+      <h3 className="font-comic text-2xl text-[--color-hot-pink] font-bold">{heading ?? 'Assignment Card'}</h3>
       <textarea
         className="mt-2 w-full min-h-40 p-2 border-2 rounded-lg text-[--color-deep-navy]"
         value={draft}
