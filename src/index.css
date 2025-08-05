@@ -17,14 +17,26 @@
   background-size: 200% 200%;
 }
 
+/* Animated rainbow background for Step 2 highlight */
+.bg-rainbow {
+  background: linear-gradient(90deg, #ff3ea5, #ff8a00, #ffe866, #32ff7e, #2ddcff, #9b5de5, #ff3ea5);
+  background-size: 200% 100%;
+}
+
 @keyframes gradientShift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
 }
 
+@keyframes rainbowShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .bg-fun.animated { animation: gradientShift 18s ease-in-out infinite; }
+  .bg-rainbow.animated { animation: rainbowShift 6s linear infinite; }
 }
 
 html, body, #root { height: 100%; }

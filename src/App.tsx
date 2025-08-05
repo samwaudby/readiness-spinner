@@ -103,9 +103,9 @@ function App() {
         {/* Step 2 */}
         <div className="rounded-2xl p-4 shadow-xl border-4 border-[--color-sunshine-yellow] bg-white/80 backdrop-blur">
           <div className="font-comic text-2xl text-[--color-hot-pink] font-bold mb-3 text-left">Step 2: Pick your spinner</div>
-          <div className="relative inline-flex rounded-full border-2 border-[--color-deep-navy] bg-white/70 shadow-inner">
+          <div className="relative inline-flex rounded-full border-2 border-[--color-deep-navy] bg-white/70 shadow-inner overflow-hidden">
             <div
-              className={`absolute top-0 bottom-0 w-1/2 rounded-full bg-[--color-sunshine-yellow] shadow transition-transform duration-300 ease-out ${secondary==='capability' ? 'translate-x-0' : 'translate-x-full'}`}
+              className={`absolute top-0 bottom-0 w-1/2 rounded-full bg-rainbow animated shadow-[0_0_0_2px_rgba(14,19,48,0.3)_inset] transition-transform duration-300 ease-out ${secondary==='capability' ? 'translate-x-0' : 'translate-x-full'}`}
               aria-hidden
             />
             <button className={`relative z-10 px-5 py-2 rounded-full font-bold ${secondary==='capability' ? 'text-[--color-deep-navy]' : 'opacity-70'}`} onClick={() => { setSecondary('capability'); setSelectedCapability(null); setSelectedPlatform(null); setAssignment(null); }}>ChatGPT Capability</button>
